@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+set timeout 60
+cd /home/claude/xv6-riscv
+spawn make TOOLPREFIX=riscv64-linux-gnu- qemu
+expect "init: starting sh"
+send "cowtest\r"
+expect {
+  "cowtest: PASSED" { puts "\n>>> COWTEST PASSED\n" }
+  "cowtest: FAILED" { puts "\n>>> COWTEST FAILED\n" }
+  timeout { puts "\n>>> COWTEST TIMEOUT\n" }
+}
+send "mmaptest\r"
+expect {
+  "mmaptest: PASSED" { puts "\n>>> MMAPTEST PASSED\n" }
+  "FAILED" { puts "\n>>> MMAPTEST FAILED\n" }
+  timeout { puts "\n>>> MMAPTEST TIMEOUT\n" }
+}
+send "mlfqtest\r"
+expect {
+  -re "mlfqtest: parent's pause.*ticks" { puts "\n>>> MLFQTEST RAN\n" }
+  timeout { puts "\n>>> MLFQTEST TIMEOUT\n" }
+}
+expect {
+  "$ " { }
+  timeout { }
+}
+send "\x01"
+send "x"
+expect eof

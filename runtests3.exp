@@ -1,0 +1,16 @@
+#!/usr/bin/expect -f
+log_file -a /tmp/mytests_full.log
+set timeout 60
+cd /home/claude/xv6-riscv
+spawn make TOOLPREFIX=riscv64-linux-gnu- qemu
+expect "init: starting sh"
+send "usertests -q\r"
+set timeout 240
+expect {
+  "ALL TESTS PASSED" { puts "\n>>> USERTESTS PASSED\n" }
+  "FAILED" { puts "\n>>> USERTESTS FAILED\n" }
+  timeout { puts "\n>>> USERTESTS TIMEOUT\n" }
+}
+send "\x01"
+send "x"
+expect eof
